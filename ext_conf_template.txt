@@ -1,0 +1,12 @@
+
+# cat=filepath//10; type=string; label= Tika Path: Path (can be relative to site_root) to your Apache Tika App jar file (Java is detected automatically)
+pathTika = ../tika-app-1.7.jar
+
+# cat=filepath//10; type=string; label= Path to pdftotext: This path must be valid, if you want to extract content from pdf files
+pathPdftotext = /usr/bin/
+
+# cat:support//20; type=string; label= Supported file extensions
+supportedFileExtensions = doc,docx,epub,htm,html,msg,odf,odt,pdf,ppt,pptx,rtf,sxw,tgz,txt,xls,xlsx,xml,zip
+
+# cat=basic//80; type=boolean; label= Enable debug (see syslog)
+debugMode = 1
