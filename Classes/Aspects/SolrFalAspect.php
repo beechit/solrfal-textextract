@@ -93,8 +93,7 @@ class SolrFalAspect implements SingletonInterface {
 			$content = NULL;
 			if ($item->getFile()->getExtension() === 'pdf') {
 				$content = $this->pdfToText($item->getFile());
-			}
-			if ($content === NULL && $this->pathTika) {
+			} elseif ($this->pathTika) {
 				$content = $this->fileToText($item->getFile());
 			}
 			if ($content !== NULL) {
@@ -110,14 +109,43 @@ class SolrFalAspect implements SingletonInterface {
 	 * @return string
 	 */
 	protected function pdfToText(File $file) {
+		if ($this->isPdfEncrypted($file)) {
+			return '';
+		}
 		$tempFile = GeneralUtility::tempnam('pdfToText');
 		$cmd = rtrim($this->pathPdftotext, '/') . '/pdftotext -enc UTF-8 -q '
-			  . escapeshellarg($file->getForLocalProcessing())
+			  . escapeshellarg($file->getForLocalProcessing(FALSE))
 			  . ' ' . $tempFile;
 		exec($cmd);
 		$content = file_get_contents($tempFile);
 		GeneralUtility::unlink_tempfile($tempFile);
 		return $content;
+	}
+
+	/**
+	 * Check if pdf is encrypted
+	 *
+	 * @param File $file
+	 * @return bool
+	 */
+	protected function isPdfEncrypted(File $file) {
+		$encrypted = FALSE;
+		$cmd = rtrim($this->pathPdftotext, '/') . '/pdfinfo '
+			. escapeshellarg($file->getForLocalProcessing(FALSE));
+		CommandUtility::exec($cmd, $pdfInfoArray);
+
+		// Find line "Encrypted:"
+		foreach ($pdfInfoArray as $line) {
+			list($key, $value) = explode(':', $line);
+			if (strtolower($key) === 'encrypted') {
+				if (strtolower(trim($value)) !== 'no') {
+					$encrypted = TRUE;
+					break;
+				}
+			}
+		}
+
+		return $encrypted;
 	}
 
 	/**
@@ -132,7 +160,7 @@ class SolrFalAspect implements SingletonInterface {
 			. ' -Dfile.encoding=UTF8' // forces UTF8 output
 			. ' -jar ' . escapeshellarg($this->pathTika)
 			. ' -t'
-			. ' ' . escapeshellarg($file->getForLocalProcessing());
+			. ' ' . escapeshellarg($file->getForLocalProcessing(FALSE));
 
 		exec($tikaCommand, $output);
 
