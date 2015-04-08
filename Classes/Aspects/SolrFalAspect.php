@@ -134,15 +134,56 @@ class SolrFalAspect implements SingletonInterface {
 			. escapeshellarg($file->getForLocalProcessing(FALSE));
 		CommandUtility::exec($cmd, $pdfInfoArray);
 
-		// Find line "Encrypted:"
+		$form = '';
+		$version = 0;
+		$copyEncrypted = FALSE;
+		$changeEncrypted = FALSE;
+		$optimized = FALSE;
+		$pageFormatA4 = FALSE;
+
+		// Find some info about pdf to determine if we can read its contents
 		foreach ($pdfInfoArray as $line) {
-			list($key, $value) = explode(':', $line);
-			if (strtolower($key) === 'encrypted') {
-				if (strtolower(trim($value)) !== 'no') {
+			list($key, $value) = explode(':', $line, 2);
+			$value = trim($value);
+
+			if ($key === 'Encrypted') {
+				if ($value !== 'no') {
 					$encrypted = TRUE;
-					break;
+					$copyEncrypted = strpos($value, 'copy:no') === FALSE;
+					$changeEncrypted = strpos($value, 'change:no') === FALSE;
 				}
 			}
+
+			if ($key === 'Form') {
+				$form = $value;
+			}
+			if ($key === 'PDF version') {
+				$version = (float)$value;
+			}
+			if ($key === 'Optimized') {
+				$optimized = ($value === 'Yes');
+			}
+			if ($key === 'Page size') {
+				$pageFormatA4 = (strpos($value, 'A4') === FALSE);
+			}
+		}
+
+		// Forms are readable (AcroForm we know for sure, but we expect all forms)
+		if ($form !== 'none') {
+			$encrypted = FALSE;
+		}
+		// Version < 1.6 can also be read if copy of change isn't encrypted
+		if ($version < 1.6 && (!$copyEncrypted || !$changeEncrypted)) {
+			$encrypted = FALSE;
+		}
+
+		// PDF version 1.6 is also readable for if not optimized
+		if ($version === 1.6 && !$optimized) {
+			$encrypted = FALSE;
+		}
+		// PDF version 1.6 and no A4 value is also (most times) readable
+		if ($version === 1.6 && !$pageFormatA4) {
+			$encrypted = FALSE;
 		}
 
 		return $encrypted;
