@@ -93,7 +93,8 @@ class SolrFalAspect implements SingletonInterface {
 			$content = NULL;
 			if ($item->getFile()->getExtension() === 'pdf') {
 				$content = $this->pdfToText($item->getFile());
-			} elseif ($this->pathTika) {
+			}
+			if ($content !== NULL && $this->pathTika) {
 				$content = $this->fileToText($item->getFile());
 			}
 			if ($content !== NULL) {
@@ -119,6 +120,12 @@ class SolrFalAspect implements SingletonInterface {
 		exec($cmd);
 		$content = file_get_contents($tempFile);
 		GeneralUtility::unlink_tempfile($tempFile);
+
+		// Last check for encrypted document
+		if ($this->textHasEncryptionMarks($content)) {
+			$content = NULL;
+		}
+
 		return $content;
 	}
 
@@ -190,6 +197,22 @@ class SolrFalAspect implements SingletonInterface {
 	}
 
 	/**
+	 * Check if text has markers that are consistent with an encrypted document
+	 *
+	 * @param $text
+	 * @return bool
+	 */
+	protected function textHasEncryptionMarks($text) {
+		if (strpos($text, '%#$#') !== FALSE) {
+			return TRUE;
+		}
+		if (strpos($text, '!%!') !== FALSE) {
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	/**
 	 * Use tika to extract contents of pdf file
 	 *
 	 * @param File $file
@@ -207,6 +230,11 @@ class SolrFalAspect implements SingletonInterface {
 
 		if ($output) {
 			$content = implode(PHP_EOL, $output);
+
+			// Last check for encrypted document
+			if ($this->textHasEncryptionMarks($content)) {
+				$content = NULL;
+			}
 		}
 
 		return $content;
