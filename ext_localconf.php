@@ -16,4 +16,12 @@ if (TYPO3_MODE === 'BE') {
         'BeechIt\\SolrfalTextextract\\Aspects\\SolrFalAspect',
         'fileMetaDataRetrieved'
     );
+
+    // Namespace change in ext:solrfal 2.1
+    $signalSlotDispatcher->connect(
+        'ApacheSolrForTypo3\\Solrfal\\Indexing\\DocumentFactory',
+        'fileMetaDataRetrieved',
+        'BeechIt\\SolrfalTextextract\\Aspects\\SolrFalAspect',
+        'fileMetaDataRetrieved'
+    );
 }
