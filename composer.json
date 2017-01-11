@@ -1,0 +1,18 @@
+{
+  "name": "beechit/solrfal-textextract",
+  "type": "typo3-cms-extension",
+  "description": "Add text extracting for SOLR indexing of FileAbstractionLayer based files in TYPO3 CMS",
+  "license": [
+    "GPL-2.0+"
+  ],
+  "require": {
+    "php" : ">=5.3.7",
+    "typo3/cms-core": "^7.6.0 || ^8.0",
+    "apache-solr-for-typo3/solrfal": ">=2.0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "BeechIt\\SolrfalTextextract\\": "Classes/"
+    }
+  }
+}
