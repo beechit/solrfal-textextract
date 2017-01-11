@@ -7,7 +7,7 @@
   ],
   "require": {
     "php" : ">=5.3.7",
-    "typo3/cms-core": "^7.6.0 || ^8.0",
+    "typo3/cms-core": "^7.6.0 || ^8.0 || dev-*",
     "apache-solr-for-typo3/solrfal": ">=2.0.1"
   },
   "autoload": {
