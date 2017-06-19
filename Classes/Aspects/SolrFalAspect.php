@@ -113,7 +113,7 @@ class SolrFalAspect implements SingletonInterface
             if ($item->getFile()->getExtension() === 'pdf') {
                 $content = $this->pdfToText($item->getFile());
             }
-            if ($content !== NULL && $this->pathTika) {
+            if ($content === NULL && $this->pathTika) {
                 $content = $this->fileToText($item->getFile());
             }
             if ($content !== NULL) {
