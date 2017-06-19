@@ -13,11 +13,11 @@ $EM_CONF[$_EXTKEY] = array(
     'author_company' => 'Beech IT',
     'clearCacheOnLoad' => 1,
     'lockType' => '',
-    'version' => '1.0.0',
+    'version' => '1.0.1',
     'constraints' =>
         array(
             'depends' => array(
-                'typo3' => '6.2.7-7.6.99',
+                'typo3' => '6.2.7-8.7.99',
                 'solr' => '3.0',
                 'solrfal' => '2.0.1',
             ),

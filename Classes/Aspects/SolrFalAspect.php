@@ -45,13 +45,18 @@ class SolrFalAspect implements SingletonInterface
      */
     public function __construct()
     {
-        $extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['solrfal_textextract']);
+        $extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['solrfal_textextract'], ['allowed_classes' => false]);
         if (!empty($extConf['pathTika'])) {
             $this->pathTika = $extConf['pathTika'];
+
             if (!GeneralUtility::isAbsPath($this->pathTika)) {
                 $this->pathTika = PathUtility::getCanonicalPath(PATH_site . $this->pathTika);
             }
-            $this->pathTika = GeneralUtility::getFileAbsFileName($this->pathTika, FALSE);
+
+            if (!@is_file($this->pathTika)) {
+                $this->pathTika = GeneralUtility::getFileAbsFileName($this->pathTika, false);
+            }
+
             if (!@is_file($this->pathTika)) {
                 $this->pathTika = NULL;
             }
