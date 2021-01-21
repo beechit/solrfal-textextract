@@ -7,18 +7,22 @@ namespace BeechIt\SolrfalTextextract\Aspects;
  * All code (c) Beech Applications B.V. all rights reserved
  */
 
+use ApacheSolrForTypo3\Solrfal\Queue\Item;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\CommandUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use TYPO3\Solr\Solrfal\Queue\Item;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class SolrFalAspect
  */
-class SolrFalAspect implements SingletonInterface
+class SolrFalAspect implements SingletonInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
 
     /**
      * @var string
@@ -45,12 +49,12 @@ class SolrFalAspect implements SingletonInterface
      */
     public function __construct()
     {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['extConf']['solrfal_textextract'];
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['solrfal_textextract'];
         if (!empty($extConf['pathTika'])) {
             $this->pathTika = $extConf['pathTika'];
 
             if (!GeneralUtility::isAbsPath($this->pathTika)) {
-                $this->pathTika = PathUtility::getCanonicalPath(PATH_site . $this->pathTika);
+                $this->pathTika = PathUtility::getCanonicalPath(Environment::getPublicPath() . '/' . $this->pathTika);
             }
 
             if (!@is_file($this->pathTika)) {
@@ -81,21 +85,8 @@ class SolrFalAspect implements SingletonInterface
                 $messages[] = 'No supported file extensions set';
             }
             if ($messages !== array()) {
-                $this->writeLog('Configuration error: ' . implode(',', $messages), 3);
+                $this->logger->error('Configuration error: ' . implode(',', $messages));
             }
-        }
-    }
-
-    /**
-     * @param $message
-     * @param int $level
-     */
-    protected function writeLog($message, $level = 0)
-    {
-        /** @var \TYPO3\CMS\Core\Authentication\BackendUserAuthentication $backendUser */
-        $backendUser = $GLOBALS['BE_USER'];
-        if (!empty($backendUser)) {
-            $backendUser->writelog(4, 1, $level, 0, '[solrfal_textextract] ' . $message, array());
         }
     }
 
@@ -107,7 +98,6 @@ class SolrFalAspect implements SingletonInterface
      */
     public function fileMetaDataRetrieved(Item $item, \ArrayObject $metadata)
     {
-
         if ($item->getFile() instanceof File && in_array(mb_strtolower($item->getFile()->getExtension()), $this->supportedFileExtensions)) {
             $content = NULL;
             if ($item->getFile()->getExtension() === 'pdf') {
