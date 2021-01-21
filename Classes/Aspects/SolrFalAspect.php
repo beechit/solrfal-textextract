@@ -45,7 +45,7 @@ class SolrFalAspect implements SingletonInterface
      */
     public function __construct()
     {
-        $extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['solrfal_textextract'], ['allowed_classes' => false]);
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['extConf']['solrfal_textextract'];
         if (!empty($extConf['pathTika'])) {
             $this->pathTika = $extConf['pathTika'];
 

@@ -11,14 +11,6 @@ if (TYPO3_MODE === 'BE') {
 
     // ext:solrfal enrich metadata and generate correct public url slot
     $signalSlotDispatcher->connect(
-        'TYPO3\\Solr\\Solrfal\\Indexing\\DocumentFactory',
-        'fileMetaDataRetrieved',
-        'BeechIt\\SolrfalTextextract\\Aspects\\SolrFalAspect',
-        'fileMetaDataRetrieved'
-    );
-
-    // Namespace change in ext:solrfal 2.1
-    $signalSlotDispatcher->connect(
         'ApacheSolrForTypo3\\Solrfal\\Indexing\\DocumentFactory',
         'fileMetaDataRetrieved',
         'BeechIt\\SolrfalTextextract\\Aspects\\SolrFalAspect',

@@ -17,9 +17,8 @@ $EM_CONF[$_EXTKEY] = array(
     'constraints' =>
         array(
             'depends' => array(
-                'typo3' => '6.2.7-8.7.99',
-                'solr' => '3.0',
-                'solrfal' => '2.0.1',
+                'typo3' => '10.4',
+                'solrfal' => '4.0',
             ),
             'conflicts' => array(),
         ),
