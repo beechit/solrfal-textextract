@@ -13,7 +13,7 @@ $EM_CONF[$_EXTKEY] = array(
     'author_company' => 'Beech IT',
     'clearCacheOnLoad' => 1,
     'lockType' => '',
-    'version' => '1.1.0',
+    'version' => '1.1.1',
     'constraints' =>
         array(
             'depends' => array(
