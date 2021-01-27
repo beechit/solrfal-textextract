@@ -9,21 +9,19 @@ namespace BeechIt\SolrfalTextextract\Aspects;
 
 use ApacheSolrForTypo3\Solrfal\Queue\Item;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\CommandUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
 
 /**
  * Class SolrFalAspect
  */
-class SolrFalAspect implements SingletonInterface, LoggerAwareInterface
+class SolrFalAspect implements SingletonInterface
 {
-    use LoggerAwareTrait;
-
     /**
      * @var string
      */
@@ -45,10 +43,17 @@ class SolrFalAspect implements SingletonInterface, LoggerAwareInterface
     protected $debug = TRUE;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * Contructor
      */
     public function __construct()
     {
+        $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
+
         $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['solrfal_textextract'];
         if (!empty($extConf['pathTika'])) {
             $this->pathTika = $extConf['pathTika'];
@@ -108,7 +113,12 @@ class SolrFalAspect implements SingletonInterface, LoggerAwareInterface
             }
             if ($content !== NULL) {
                 $metadata['content'] = $content;
+                $this->logger->debug('Parsed content of ' . $item->getFile()->getIdentifier());
+            } else {
+                $this->logger->debug('Could not parse ' . $item->getFile()->getIdentifier());
             }
+        } elseif ($item->getFile() instanceof File) {
+            $this->logger->debug('Could not parsed content of ' . $item->getFile()->getIdentifier() . ' unsupported file extension');
         }
     }
 
