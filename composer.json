@@ -14,5 +14,10 @@
     "psr-4": {
       "BeechIt\\SolrfalTextextract\\": "Classes/"
     }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "solrfal_textextract"
+    }
   }
 }
