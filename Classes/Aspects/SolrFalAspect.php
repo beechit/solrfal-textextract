@@ -13,7 +13,6 @@ use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\CommandUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -160,7 +159,7 @@ class SolrFalAspect implements SingletonInterface
         $encrypted = FALSE;
         $cmd = rtrim($this->pathPdftotext, '/') . '/pdfinfo '
             . escapeshellarg($file->getForLocalProcessing(FALSE));
-        CommandUtility::exec($cmd, $pdfInfoArray);
+        exec($cmd, $pdfInfoArray);
 
         $form = '';
         $version = 0;
@@ -243,7 +242,7 @@ class SolrFalAspect implements SingletonInterface
     protected function fileToText(File $file)
     {
         $content = NULL;
-        $tikaCommand = CommandUtility::getCommand('java')
+        $tikaCommand = 'java'
             . ' -Dfile.encoding=UTF8' // forces UTF8 output
             . ' -jar ' . escapeshellarg($this->pathTika)
             . ' -t'
