@@ -14,8 +14,8 @@ if (!isset($GLOBALS['TYPO3_CONF_VARS']['LOG']['BeechIt']['SolrfalTextextract']['
     $GLOBALS['TYPO3_CONF_VARS']['LOG']['BeechIt']['SolrfalTextextract']['writerConfiguration'] = [
         $logLevel => [
             \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
-                'logFile' => \TYPO3\CMS\Core\Core\Environment::getVarPath() . '/log/solrfal_textextract.log'
-            ]
+                'logFile' => \TYPO3\CMS\Core\Core\Environment::getVarPath() . '/log/solrfal_textextract.log',
+            ],
         ],
     ];
 }

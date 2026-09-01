@@ -1,4 +1,5 @@
 <?php
+
 namespace BeechIt\SolrfalTextextract\Aspects;
 
 /*
@@ -34,12 +35,12 @@ class SolrFalAspect implements SingletonInterface
     /**
      * @var array
      */
-    protected $supportedFileExtensions = array();
+    protected $supportedFileExtensions = [];
 
     /**
      * @var bool
      */
-    protected $debug = TRUE;
+    protected $debug = true;
 
     /**
      * @var Logger
@@ -66,7 +67,7 @@ class SolrFalAspect implements SingletonInterface
             }
 
             if (!@is_file($this->pathTika)) {
-                $this->pathTika = NULL;
+                $this->pathTika = null;
             }
         }
         if (!empty($extConf['pathPdftotext'])) {
@@ -78,17 +79,17 @@ class SolrFalAspect implements SingletonInterface
         $this->debug = !empty($extConf['debugMode']);
 
         if ($this->debug) {
-            $messages = array();
+            $messages = [];
             if (!$this->pathTika) {
                 $messages[] = 'Tika jar not found.';
             }
             if (!$this->pathPdftotext) {
                 $messages[] = 'No pdftotext path set';
             }
-            if ($this->supportedFileExtensions === array()) {
+            if ($this->supportedFileExtensions === []) {
                 $messages[] = 'No supported file extensions set';
             }
-            if ($messages !== array()) {
+            if ($messages !== []) {
                 $this->logger->error('Configuration error: ' . implode(',', $messages));
             }
         }
@@ -103,14 +104,14 @@ class SolrFalAspect implements SingletonInterface
     public function fileMetaDataRetrieved(Item $item, \ArrayObject $metadata)
     {
         if ($item->getFile() instanceof File && in_array(mb_strtolower($item->getFile()->getExtension()), $this->supportedFileExtensions)) {
-            $content = NULL;
+            $content = null;
             if ($item->getFile()->getExtension() === 'pdf') {
                 $content = $this->pdfToText($item->getFile());
             }
-            if ($content === NULL && $this->pathTika) {
+            if ($content === null && $this->pathTika) {
                 $content = $this->fileToText($item->getFile());
             }
-            if ($content !== NULL) {
+            if ($content !== null) {
                 $metadata['content'] = $content;
                 $this->logger->debug('Parsed content of ' . $item->getFile()->getIdentifier());
             } else {
@@ -134,7 +135,7 @@ class SolrFalAspect implements SingletonInterface
         }
         $tempFile = GeneralUtility::tempnam('pdfToText');
         $cmd = rtrim($this->pathPdftotext, '/') . '/pdftotext -enc UTF-8 -q '
-            . escapeshellarg($file->getForLocalProcessing(FALSE))
+            . escapeshellarg($file->getForLocalProcessing(false))
             . ' ' . $tempFile;
         exec($cmd);
         $content = file_get_contents($tempFile);
@@ -142,7 +143,7 @@ class SolrFalAspect implements SingletonInterface
 
         // Last check for encrypted document
         if ($this->textHasEncryptionMarks($content)) {
-            $content = NULL;
+            $content = null;
         }
 
         return $content;
@@ -156,28 +157,28 @@ class SolrFalAspect implements SingletonInterface
      */
     protected function isPdfEncrypted(File $file)
     {
-        $encrypted = FALSE;
+        $encrypted = false;
         $cmd = rtrim($this->pathPdftotext, '/') . '/pdfinfo '
-            . escapeshellarg($file->getForLocalProcessing(FALSE));
+            . escapeshellarg($file->getForLocalProcessing(false));
         exec($cmd, $pdfInfoArray);
 
         $form = '';
         $version = 0;
-        $copyEncrypted = FALSE;
-        $changeEncrypted = FALSE;
-        $optimized = FALSE;
-        $pageFormatA4 = FALSE;
+        $copyEncrypted = false;
+        $changeEncrypted = false;
+        $optimized = false;
+        $pageFormatA4 = false;
 
         // Find some info about pdf to determine if we can read its contents
         foreach ($pdfInfoArray as $line) {
-            list($key, $value) = explode(':', $line, 2);
+            [$key, $value] = explode(':', $line, 2);
             $value = trim($value);
 
             if ($key === 'Encrypted') {
                 if ($value !== 'no') {
-                    $encrypted = TRUE;
-                    $copyEncrypted = strpos($value, 'copy:no') === FALSE;
-                    $changeEncrypted = strpos($value, 'change:no') === FALSE;
+                    $encrypted = true;
+                    $copyEncrypted = !str_contains($value, 'copy:no');
+                    $changeEncrypted = !str_contains($value, 'change:no');
                 }
             }
 
@@ -191,26 +192,26 @@ class SolrFalAspect implements SingletonInterface
                 $optimized = ($value === 'Yes');
             }
             if ($key === 'Page size') {
-                $pageFormatA4 = (strpos($value, 'A4') === FALSE);
+                $pageFormatA4 = (!str_contains($value, 'A4'));
             }
         }
 
         // Forms are readable (AcroForm we know for sure, but we expect all forms)
         if ($form !== 'none') {
-            $encrypted = FALSE;
+            $encrypted = false;
         }
         // Version < 1.6 can also be read if copy of change isn't encrypted
         if ($version < 1.6 && (!$copyEncrypted || !$changeEncrypted)) {
-            $encrypted = FALSE;
+            $encrypted = false;
         }
 
         // PDF version 1.6 is also readable for if not optimized
         if ($version === 1.6 && !$optimized) {
-            $encrypted = FALSE;
+            $encrypted = false;
         }
         // PDF version 1.6 and no A4 value is also (most times) readable
         if ($version === 1.6 && !$pageFormatA4) {
-            $encrypted = FALSE;
+            $encrypted = false;
         }
 
         return $encrypted;
@@ -224,13 +225,13 @@ class SolrFalAspect implements SingletonInterface
      */
     protected function textHasEncryptionMarks($text)
     {
-        if (strpos($text, '%#$#') !== FALSE) {
-            return TRUE;
+        if (str_contains($text, '%#$#')) {
+            return true;
         }
-        if (strpos($text, '!%!') !== FALSE) {
-            return TRUE;
+        if (str_contains($text, '!%!')) {
+            return true;
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -241,12 +242,12 @@ class SolrFalAspect implements SingletonInterface
      */
     protected function fileToText(File $file)
     {
-        $content = NULL;
+        $content = null;
         $tikaCommand = 'java'
             . ' -Dfile.encoding=UTF8' // forces UTF8 output
             . ' -jar ' . escapeshellarg($this->pathTika)
             . ' -t'
-            . ' ' . escapeshellarg($file->getForLocalProcessing(FALSE));
+            . ' ' . escapeshellarg($file->getForLocalProcessing(false));
 
         exec($tikaCommand, $output);
 
@@ -255,7 +256,7 @@ class SolrFalAspect implements SingletonInterface
 
             // Last check for encrypted document
             if ($this->textHasEncryptionMarks($content)) {
-                $content = NULL;
+                $content = null;
             }
         }
 
