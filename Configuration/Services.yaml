@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  BeechIt\SolrfalTextextract\:
+    resource: '../Classes/*'
+
+  BeechIt\SolrfalTextextract\EventListener\AfterFileMetaDataHasBeenRetrievedEventListener:
+    tags:
+      - name: event.listener
+        identifier: 'solrfal-textextract-after-file-metadata-retrieved'
+        event: ApacheSolrForTypo3\Solrfal\Event\Indexing\AfterFileMetaDataHasBeenRetrievedEvent

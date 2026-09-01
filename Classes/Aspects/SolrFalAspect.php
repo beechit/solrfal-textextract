@@ -57,7 +57,7 @@ class SolrFalAspect implements SingletonInterface
         if (!empty($extConf['pathTika'])) {
             $this->pathTika = $extConf['pathTika'];
 
-            if (!GeneralUtility::isAbsPath($this->pathTika)) {
+            if (!\TYPO3\CMS\Core\Utility\PathUtility::isAbsolutePath($this->pathTika)) {
                 $this->pathTika = PathUtility::getCanonicalPath(Environment::getPublicPath() . '/' . $this->pathTika);
             }
 
