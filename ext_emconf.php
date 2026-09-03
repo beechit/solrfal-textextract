@@ -9,12 +9,11 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 't3ext@beech.it',
     'author_company' => 'Beech IT',
     'version' => '1.1.2',
-    'constraints'
-        => [
-            'depends' => [
-                'typo3' => '10.4.0-11.5.99',
-                'solrfal' => '4.0.0-11.99.99',
-            ],
-            'conflicts' => [],
+    'constraints' => [
+        'depends' => [
+            'typo3' => '10.4.0-13.4.99',
+            'solrfal' => '4.0.0-11.99.99',
         ],
+        'conflicts' => [],
+    ],
 ];
